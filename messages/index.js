@@ -20,6 +20,7 @@ var connector = useEmulator ? new builder.ChatConnector() : new botbuilder_azure
 });
 
 var bot = new builder.UniversalBot(connector);
+
 bot.localePath(path.join(__dirname, './locale'));
 
 // Make sure you add code to validate these fields
@@ -35,27 +36,22 @@ bot.recognizer(recognizer);
 
 bot.dialog('/', [
     (session) => {
-        builder.Prompts.choice(session, 'What can I help you with today?', [
-            'Free Spools',
-            'Product Information'
-        ])
-    },
-    (session, results) => {
-        switch (results.response.entity) {
-            case 'Free Spools':
-                session.beginDialog('freeSpools');
-            case 'Product Information': 
-                session.beginDialog('productInfo');
-            default:
-                session.send('Please choose an option');
-        }
+        var msg = new builder.Message(session)
+            .text('Do you have an issue with your product or are you interested in free spools for life?')
+            .suggestedActions(
+                builder.SuggestedActions.create(
+                        session, [
+                            builder.CardAction.imBack(session, 'Help with Product', 'Product Information'),
+                            builder.CardAction.imBack(session, 'I want Free Spools', 'Free Spools')
+                        ]
+                    ));
+        session.send(msg);
     }
-]);    
+]).triggerAction({ matches: 'start' })    
 
-bot.dialog('freeSpools', require('./freeSpools'));
-// .triggerAction({ matches: 'freespools' });
-bot.dialog('productInfo', require('./productInfo'));
-// .triggerAction({ matches: 'productinfo' });
+bot.dialog('productInfo', require('./productInfo')).triggerAction({ matches: 'productinfo' });
+bot.dialog('freeSpools', require('./freeSpools')).triggerAction({ matches: 'freespools' });
+bot.dialog('profile', require('./profile'));
 bot.dialog('None', () => {
     bot.endConversation('It seems like you didn\'t want to do anything anyway...');
 }).triggerAction({ matches: 'None' });
