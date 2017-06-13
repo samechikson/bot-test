@@ -9,7 +9,8 @@ var builder = require("botbuilder");
 var botbuilder_azure = require("botbuilder-azure");
 var path = require('path');
 
-var useEmulator = (process.env.NODE_ENV == 'development');
+// var useEmulator = (process.env.NODE_ENV == 'development');
+var useEmulator = true;
 
 var connector = useEmulator ? new builder.ChatConnector() : new botbuilder_azure.BotServiceConnector({
     appId: process.env['MicrosoftAppId'],
@@ -22,8 +23,9 @@ var bot = new builder.UniversalBot(connector);
 bot.localePath(path.join(__dirname, './locale'));
 
 // Make sure you add code to validate these fields
-var luisAppId = process.env.LuisAppId;
-var luisAPIKey = process.env.LuisAPIKey;
+console.log(process.env.LuisAppId);
+var luisAppId = process.env.LuisAppId || 'd9a7fcd9-32a2-4403-8c31-982f8870c77a';
+var luisAPIKey = process.env.LuisAPIKey || '00dc3ef0820a49e99c7cab94b61d136a';
 var luisAPIHostName = process.env.LuisAPIHostName || 'westus.api.cognitive.microsoft.com';
 
 const LuisModelUrl = 'https://' + luisAPIHostName + '/luis/v1/application?id=' + luisAppId + '&subscription-key=' + luisAPIKey;
