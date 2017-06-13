@@ -1,17 +1,18 @@
 var builder = require('botbuilder');    
     
 module.exports = [
-    function (session) {
-
+    (session) => {
         session.send('Welcome to the Free Spools for Life sign up!');
-        // Reply and return to parent dialog
-        
-        builder.Prompts.text(session, 'First off, please give me your Name');
+        if (!session.dialogData.profile) {
+            session.send('It looks like you don\'t have an account with us... Please register');
+            session.beginDialog('profile');
+        }   
+        else {
+            builder.Prompts.confirm(session, new builder.Message(session).text('We\'ll use the account registed under %s?', session.dialogData.profile.name));
+        }   
     },
-    function (session, results, next) {
-        session.dialogData.name = results.response;
-        session.send('Thanks %s', results.response);
-        next();
-    },
+    (session, results) => {
+        session.send('Sending free spools to %s', results.response.email);
+    }
 ];
 
