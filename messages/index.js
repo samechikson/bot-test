@@ -23,7 +23,6 @@ var bot = new builder.UniversalBot(connector);
 bot.localePath(path.join(__dirname, './locale'));
 
 // Make sure you add code to validate these fields
-console.log(process.env.LuisAppId);
 var luisAppId = process.env.LuisAppId || 'd9a7fcd9-32a2-4403-8c31-982f8870c77a';
 var luisAPIKey = process.env.LuisAPIKey || '00dc3ef0820a49e99c7cab94b61d136a';
 var luisAPIHostName = process.env.LuisAPIHostName || 'westus.api.cognitive.microsoft.com';
@@ -32,28 +31,42 @@ const LuisModelUrl = 'https://' + luisAPIHostName + '/luis/v1/application?id=' +
 
 // Main dialog with LUIS
 var recognizer = new builder.LuisRecognizer(LuisModelUrl);
-var intents = new builder.IntentDialog({ recognizers: [recognizer] })
-/*
-.matches('<yourIntent>')... See details at http://docs.botframework.com/builder/node/guides/understanding-natural-language/
-*/
+bot.recognizer(recognizer);
+// var intents = new builder.IntentDialog({ recognizers: [recognizer] })
+// /*
+// .matches('<yourIntent>')... See details at http://docs.botframework.com/builder/node/guides/understanding-natural-language/
+// */
+// .matches('productnotworking', (session, args) => {
+//     session.send('Not working intent');
+//     console.log(args);
+// })
+// .matches('product', (session, args) => {
+//     session.send('Product Info intent');
+//     console.log(args);
+// })
+// .matches('None', (session, args) => {
+//     session.send('No Intent');
+//     console.log(args);
+// })
+// .onDefault((session) => {
+//     session.send('Sorry, I did not understand \'%s\'.', session.message.text);
+// });
 
-.matches('productnotworking', (session, args) => {
-    session.send('Not working intent');
-    console.log(args);
-})
-.matches('product', (session, args) => {
-    session.send('Product Info intent');
-    console.log(args);
-})
-.matches('None', (session, args) => {
-    session.send('No Intent');
-    console.log(args);
-})
-.onDefault((session) => {
-    session.send('Sorry, I did not understand \'%s\'.', session.message.text);
-});
+bot.dialog('/', [
+    function(session) {
+        session.send('What can I help you with today?');
+    }]
+);    
 
-bot.dialog('/', intents);    
+bot.dialog('freeSpools', require('./freeSpools')).triggerAction({ matches: 'freespools' });
+bot.dialog('productinfo', (session) => {
+    session.send('We have no info on products right now');
+}).triggerAction({ matches: 'productinfo' });
+bot.dialog('None', () => {
+    bot.endConversation('It seems like you didn\'t want to do anything anyway...');
+}).triggerAction({ matches: 'None' });
+
+// bot.dialog('/', intents);    
 
 if (useEmulator) {
     var restify = require('restify');
