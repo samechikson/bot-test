@@ -32,36 +32,30 @@ const LuisModelUrl = 'https://' + luisAPIHostName + '/luis/v1/application?id=' +
 // Main dialog with LUIS
 var recognizer = new builder.LuisRecognizer(LuisModelUrl);
 bot.recognizer(recognizer);
-// var intents = new builder.IntentDialog({ recognizers: [recognizer] })
-// /*
-// .matches('<yourIntent>')... See details at http://docs.botframework.com/builder/node/guides/understanding-natural-language/
-// */
-// .matches('productnotworking', (session, args) => {
-//     session.send('Not working intent');
-//     console.log(args);
-// })
-// .matches('product', (session, args) => {
-//     session.send('Product Info intent');
-//     console.log(args);
-// })
-// .matches('None', (session, args) => {
-//     session.send('No Intent');
-//     console.log(args);
-// })
-// .onDefault((session) => {
-//     session.send('Sorry, I did not understand \'%s\'.', session.message.text);
-// });
 
 bot.dialog('/', [
-    function(session) {
-        session.send('What can I help you with today?');
-    }]
-);    
+    (session) => {
+        builder.Prompts.choice(session, 'What can I help you with today?', [
+            'Free Spools',
+            'Product Information'
+        ])
+    },
+    (session, results) => {
+        switch (results.response.entity) {
+            case 'Free Spools':
+                session.beginDialog('freeSpools');
+            case 'Product Information': 
+                session.beginDialog('productInfo');
+            default:
+                session.send('Please choose an option');
+        }
+    }
+]);    
 
-bot.dialog('freeSpools', require('./freeSpools')).triggerAction({ matches: 'freespools' });
-bot.dialog('productinfo', (session) => {
-    session.send('We have no info on products right now');
-}).triggerAction({ matches: 'productinfo' });
+bot.dialog('freeSpools', require('./freeSpools'));
+// .triggerAction({ matches: 'freespools' });
+bot.dialog('productInfo', require('./productInfo'));
+// .triggerAction({ matches: 'productinfo' });
 bot.dialog('None', () => {
     bot.endConversation('It seems like you didn\'t want to do anything anyway...');
 }).triggerAction({ matches: 'None' });
