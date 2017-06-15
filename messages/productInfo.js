@@ -7,17 +7,29 @@ module.exports = [
     (session, results, next) => {
         session.send('Ok, this is a %s product', results.response.entity);
         session.dialogData.productNew = (results.response.entity == 'new');
-        var msg = new builder.Message(session)
+
+        var options = [
+            new builder.ThumbnailCard(session)
+            .title('Garden Tools')
+            .images([ builder.CardImage.create(session, 'https://www.carid.com/images/positec/patio-and-garden/wg050.jpg')])
+            .buttons([ builder.CardAction.imBack(session, 'Lawn & Garden', 'Lawn & Garden') ]),
+
+            new builder.ThumbnailCard(session)
+            .title('Garden Tools')
+            .images([ builder.CardImage.create(session, 'http://ww1.prweb.com/prfiles/2013/01/28/10757538/RK2600K2_Rockwell_16V_drill_driver.jpg')])
+            .buttons([ builder.CardAction.imBack(session, 'Power Tool', 'Power Tool') ]),
+            
+            new builder.ThumbnailCard(session)
+            .title('Garden Tools')
+            .images([ builder.CardImage.create(session, 'http://ww1.prweb.com/prfiles/2016/05/26/13447845/Rockwell_Sonicrafter_F80_RK5151K_Light.jpg')])
+            .buttons([ builder.CardAction.imBack(session, 'Oscillation Tool', 'Oscillation Tool') ])
+        ];
+        var reply = new builder.Message(session)
             .text('What category does this product belong to?')
-            .suggestedActions(
-                builder.SuggestedActions.create(
-                        session, [
-                            builder.CardAction.imBack(session, 'Lawn & Garden', 'Lawn & Garden'),
-                            builder.CardAction.imBack(session, 'Power Tool', 'Power Tool'),
-                            builder.CardAction.imBack(session, 'Oscillation Tool', 'Oscillation Tool')
-                        ]
-                    ));
-        builder.Prompts.text(session, msg);
+            .attachmentLayout(builder.AttachmentLayout.carousel)
+            .attachments(options);
+
+        builder.Prompts.text(session, reply);
     },
     (session, results, next) => {
         session.send('Ok, you have a %s product', results.response);
