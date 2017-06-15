@@ -37,7 +37,7 @@ bot.recognizer(recognizer);
 bot.dialog('/', [
     (session) => {
         var msg = new builder.Message(session)
-            .text('Do you have an issue with your product or are you interested in free spools for life?')
+            .text('Are you inquiring about a product? Interested in free spools for life?')
             .suggestedActions(
                 builder.SuggestedActions.create(
                         session, [
